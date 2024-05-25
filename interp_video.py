@@ -64,15 +64,16 @@ def interp_imgs_for_video(ppl, origin_img0, origin_img1, saving_index):
     # flow10 = flow_viz.flow_to_image(flow10, convert_to_bgr=True)
     bi_flow = np.concatenate([flow01, flow10], axis=1)
 
-    cv2.imwrite(os.path.join(SAVE_DIR, f'frame_{saving_index:03d}.jpg'), ori_img0)
+    cv2.imwrite(os.path.join(SAVE_DIR, f'frame_{saving_index:04d}.jpg'), ori_img0)
     saving_index += 1
-    cv2.imwrite(os.path.join(SAVE_DIR, f'frame_{saving_index}'), interp_img)
+    cv2.imwrite(os.path.join(SAVE_DIR, f'frame_{saving_index:04d}.jpg'), interp_img)
     print("\nInterpolation is completed! Please see the results in %s" % (SAVE_DIR))
-
+    saving_index += 1
     return saving_index
+
 def load_images(directory, index):
-    frame_number = f"{index:03d}"
-    filename = f"frame_{frame_number}.png"  # Assuming the images are in .png format
+    frame_number = f"{index:04d}"
+    filename = f"frame_{frame_number}.jpg"  # Assuming the images are in .png format
     filepath = os.path.join(directory, filename)
     return filepath
 
@@ -81,12 +82,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
             description="interpolate for given pair of images")
 
-    parser.add_argument("--frame_path", type=str, required=True,
+    parser.add_argument("--frame_path", type=str, default="/root/autodl-tmp/Outputs/dancing/dancing4x",
+    # parser.add_argument("--frame_path", type=str, default="/root/autodl-fs/Origin/dancingGirls",
+                                                           
             help="file path of the images folder")
     parser.add_argument("--time_period", type=float, default=0.5,
             help="time period for interpolated frame")
     parser.add_argument("--save_dir", type=str,
-            default="./demo/output",
+            default="/root/autodl-tmp/Outputs/dancing/dancing8x",
             help="dir to save interpolated frame")
 
     ## load base version of UPR-Net by default
@@ -103,7 +106,8 @@ if __name__ == "__main__":
     SAVE_DIR = args.save_dir
     DIRECTORY_PATH = args.frame_path
 
-    number_of_images:int = 366
+
+    number_of_images:int = 1455
 
     #**********************************************************#
     # Start initialization
@@ -113,16 +117,18 @@ if __name__ == "__main__":
     # => parse args and init the training environment
     # global variable
     saving_index = 0
-    for i in range(number_of_images):
+    for i in range(1, number_of_images):
         FRAME0 = load_images(directory=DIRECTORY_PATH, index=i)
         FRAME1 = load_images(directory=DIRECTORY_PATH, index=i+1)
+        
         ori_img0 = cv2.imread(FRAME0)
         ori_img1 = cv2.imread(FRAME1)
 
     #**********************************************************#
     # => read input frames and calculate the number of pyramid levels
-        if ori_img0.shape != ori_img1.shape:
-            ValueError("Please ensure that the input frames have the same size!")
+        test1 = ori_img0.shape 
+        test2 = ori_img1.shape
+        #    ValueError("Please ensure that the input frames have the same size!")
 
         width = ori_img0.shape[1]
         PYR_LEVEL = math.ceil(math.log2(width/448) + 3)
@@ -137,5 +143,6 @@ if __name__ == "__main__":
 
         ppl = Pipeline(model_cfg_dict)
         ppl.eval()
-        saving_index = (ppl, ori_img0, ori_img1, saving_index)
+        saving_index = interp_imgs_for_video(ppl, ori_img0, ori_img1, saving_index)
+        print("saved once")
 
