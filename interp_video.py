@@ -82,9 +82,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
             description="interpolate for given pair of images")
 
-    parser.add_argument("--frame_path", type=str, default="/root/autodl-tmp/Outputs/dancing/dancing4x",
-    # parser.add_argument("--frame_path", type=str, default="/root/autodl-fs/Origin/dancingGirls",
-                                                           
+    parser.add_argument("--frame_path", type=str, default="/root/autodl-tmp/Outputs/dancing/dancing4x",                                                           
             help="file path of the images folder")
     parser.add_argument("--time_period", type=float, default=0.5,
             help="time period for interpolated frame")
@@ -99,15 +97,16 @@ if __name__ == "__main__":
             default="./checkpoints/upr-base.pkl",
             help='weight of UPR-Net')
 
+    # for inference only
+    parser.add_argument("--number_of_frames", type=int, default=1000, help="number of frames in folder")
+
 
 
     args = parser.parse_args()
     TIME_PERIOID = args.time_period
     SAVE_DIR = args.save_dir
     DIRECTORY_PATH = args.frame_path
-
-
-    number_of_images:int = 1455
+    number_of_images = args.number_of_frames
 
     #**********************************************************#
     # Start initialization
